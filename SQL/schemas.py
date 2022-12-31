@@ -3,10 +3,10 @@ from typing import List, Union, Optional
 
 class AdjectiveBase(BaseModel):
     adjective_word: str
-    madlib_id: int
+    madlib_id: int 
 
 class AdjectiveCreate(AdjectiveBase):
-    pass 
+    pass
 
 class Adjective(AdjectiveBase):
     adjective_id: int
@@ -28,8 +28,8 @@ class Noun(NounBase):
         orm_mode = True
 
 class VerbBase(BaseModel):
-    verb_word: str
-    madlib_id: int 
+    verb_word: str 
+    madlib_id: int
 
 class VerbCreate(VerbBase):
     pass 
@@ -57,16 +57,16 @@ class MadlibBase(BaseModel):
     title: str
     content: str
     active: Optional[bool] = None
-    adjectives: List[Adjective]
-    nouns: List[Noun]
-    verbs: List[Verb]
-    miscellanies: List[Miscellany]
 
 class MadlibCreate(MadlibBase):
     pass 
 
 class Madlib(MadlibBase):
     madlib_id: int
+    adjectives: List[Adjective]
+    nouns: List[Noun]
+    verbs: List[Verb]
+    miscellanies: List[Miscellany]
 
     class Config:
         orm_mode = True

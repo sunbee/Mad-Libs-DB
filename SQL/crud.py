@@ -18,8 +18,24 @@ def post_madlib_body(db: Session, madlib: schemas.MadlibCreate):
 
 def post_madlib_adjectives(db: Session, adjectives: List[schemas.AdjectiveCreate]):
     for adjective in adjectives:
-        db_adjective = models.Adjective(adjective_word = adjective.adjective_word, madlib_id = adjective.madlib_id)
+        db_adjective = models.Adjective(**adjective.dict())
         db.add(db_adjective)
     db.commit()
     db_madlib = get_madlib(db, adjectives[0].madlib_id)
+    return db_madlib
+
+def post_madlib_nouns(db: Session, nouns: List[schemas.NounCreate]):
+    for noun in nouns:
+        db_noun = models.Noun(**noun.dict())
+        db.add(db_noun)
+    db.commit()
+    db_madlib = get_madlib(db, nouns[0].madlib_id)
+    return db_madlib
+
+def post_madlib_verbs(db: Session, verbs: List[schemas.VerbCreate]):
+    for verb in verbs:
+        db_verb = models.Verb(**verb.dict())
+        db.add(db_verb)
+    db.commit()
+    db_madlib = get_madlib(db, verbs[0].madlib_id)
     return db_madlib

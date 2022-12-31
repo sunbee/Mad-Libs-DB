@@ -26,6 +26,14 @@ async def get_madlib_adjectives(id: int, word_list: str = Form(...)):
     madlib_adjectives = [schemas.AdjectiveCreate(adjective_word=word, madlib_id=id) for word in word_list.split(',')]
     return madlib_adjectives
 
+async def get_madlib_nouns(id: int, word_list: str = Form(...)):
+    madlib_nouns = [schemas.NounCreate(noun_word=word, madlib_id=id) for word in word_list.split(',')]
+    return madlib_nouns
+
+async def get_madlib_verbs(id: int, word_list: str = Form(...)):
+    madlib_verbs = [schemas.VerbCreate(verb_word=word, madlib_id=id) for word in word_list.split(',')]
+    return madlib_verbs
+
 @app.get('/getmadlib/{id}', response_model=schemas.Madlib)
 async def get_madlib_byID(id: int, db: Session = Depends(get_DB)):
     return crud.get_madlib(db, id)
@@ -42,8 +50,8 @@ async def make_madlib_content(madlib_body: schemas.MadlibCreate = Depends(get_ma
         raise HTTPException(status_code=400, detail="Created no record! Found madlib with title in DB.")
     return crud.post_madlib_body(db, madlib_body)
 
-@app.post('/addmadlib_wordlist/adjective/{id}')
-async def make_madlib_wordlist(adjectives: List[schemas.AdjectiveCreate] = Depends(get_madlib_adjectives),
+@app.post('/addmadlib_wordlist/adjective/{id}', response_model=schemas.Madlib)
+async def make_madlib_adjectiveList(adjectives: List[schemas.AdjectiveCreate] = Depends(get_madlib_adjectives),
     db: Session = Depends(get_DB)):
     db_madlib = crud.get_madlib(db, adjectives[0].madlib_id)
     if not db_madlib:
@@ -54,3 +62,29 @@ async def make_madlib_wordlist(adjectives: List[schemas.AdjectiveCreate] = Depen
             raise HTTPException(status_code=400, detail="Added no words! Found adjectives in DB for madlib with id.")
     
     return crud.post_madlib_adjectives(db, adjectives)
+
+@app.post('/addmadlib_wordlist/noun/{id}', response_model=schemas.Madlib)
+async def make_madlib_nounList(nouns: List[schemas.NounCreate] = Depends(get_madlib_nouns),
+    db: Session = Depends(get_DB)):
+    db_madlib = crud.get_madlib(db, nouns[0].madlib_id)
+    if not db_madlib:
+        raise HTTPException(status_code=400, detail="Created no record! Found no madlib with that id.")
+    else:
+        db_nouns = db_madlib.nouns
+        if db_nouns:
+            raise HTTPException(status_code=400, detail="Added no words. Found nouns in DB for madlib with id.")
+    
+    return crud.post_madlib_nouns(db, nouns)
+
+@app.post('/addmadlib_wordlist/verb/{id}', response_model=schemas.Madlib)
+async def make_madlib_verbList(verbs: List[schemas.VerbCreate] = Depends(get_madlib_verbs), 
+    db: Session = Depends(get_DB)):
+    db_madlib = crud.get_madlib(db, verbs[0].madlib_id)
+    if not db_madlib:
+        raise HTTPException(status_code=400, detail="Created no record! Found no madlib with that id.")
+    else:
+        db_verbs = db_madlib.verbs
+        if db_verbs:
+            raise HTTPException(status_code=400, detail="Added no words. Found verbs in DB for madlib with id.")
+
+    return crud.post_madlib_verbs(db, verbs)

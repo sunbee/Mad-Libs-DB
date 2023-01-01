@@ -39,3 +39,11 @@ def post_madlib_verbs(db: Session, verbs: List[schemas.VerbCreate]):
     db.commit()
     db_madlib = get_madlib(db, verbs[0].madlib_id)
     return db_madlib
+
+def post_madlib_miscellanies(db: Session, miscellanies: List[schemas.MiscellanyCreate]):
+    for miscellany in miscellanies:
+        db_miscellany = models.Miscellany(**miscellany.dict())
+        db.add(db_miscellany)
+    db.commit()
+    db_madlib = get_madlib(db, miscellanies[0].madlib_id)
+    return db_madlib

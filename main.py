@@ -34,6 +34,10 @@ async def get_madlib_verbs(id: int, word_list: str = Form(...)):
     madlib_verbs = [schemas.VerbCreate(verb_word=word, madlib_id=id) for word in word_list.split(',')]
     return madlib_verbs
 
+async def get_madlib_miscellanies(id: int, word_list: str = Form(...)):
+    madlib_miscellanies = [schemas.MiscellanyCreate(miscellany_word=word, madlib_id=id) for word in word_list.split(',')]
+    return madlib_miscellanies
+
 @app.get('/getmadlib/{id}', response_model=schemas.Madlib)
 async def get_madlib_byID(id: int, db: Session = Depends(get_DB)):
     return crud.get_madlib(db, id)
@@ -88,3 +92,16 @@ async def make_madlib_verbList(verbs: List[schemas.VerbCreate] = Depends(get_mad
             raise HTTPException(status_code=400, detail="Added no words. Found verbs in DB for madlib with id.")
 
     return crud.post_madlib_verbs(db, verbs)
+
+@app.post('/addmadlib_wordlist/miscellany/{id}', response_model=schemas.Madlib)
+async def make_madlib_miscellanyList(miscellanies: List[schemas.MiscellanyCreate] = Depends(get_madlib_miscellanies), 
+    db: Session = Depends(get_DB)):
+    db_madlib = crud.get_madlib(db, miscellanies[0].madlib_id)
+    if not db_madlib:
+        raise HTTPException(status_code=400, detail="Created no record! Found no madlib with that id.")
+    else:
+        db_miscellanies = db_madlib.miscellanies
+        if db_miscellanies:
+            raise HTTPException(status_code=400, detail="Added no words. Found miscellanies in DB for madlib with id.")
+
+    return crud.post_madlib_miscellanies(db, miscellanies)

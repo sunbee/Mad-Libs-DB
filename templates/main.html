@@ -1,0 +1,19 @@
+{# templates/main.html #}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Marvellous Mavericks Methodically Mad-Libs Make</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunbee/Mad-Libs-Base@rev010/CSS/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    </head>
+    {% block page_madlib %}
+    <div id="header"><div class="left"></div><div class="right"><h1 id="title">Marvellously Mirthful Mad-Libs from Mercurial Mavens</h1></div></div>
+    <div id="footer"><a id="home" href="/"><img src="https://user-images.githubusercontent.com/5471571/209766181-11100368-ad9c-4c01-9cb1-145dd040f644.png"/></a></div>
+    {% endblock page_madlib %}
+    {% block page_home %}
+    {% endblock page_home %}
+</html>

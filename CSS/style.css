@@ -1,0 +1,96 @@
+body {
+    background-image: url('https://madlibs.bostonchildrensmuseum.org/madlibs-junior/mystery-museum/images/background.jpg');
+    font-family: 'Chelsea Market', cursive;
+}
+
+.underline {
+    border-bottom: 2px solid black;
+    padding: 0px 46px;
+    cursor: pointer;
+}
+
+.modal {
+    display: block;
+    position: fixed; 
+    padding-top: 50px;
+    left: 0; 
+    top: 0;
+    width: 100%;
+    height: 100%; 
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    position: relative; 
+    background-color: white;
+    text-align: center;
+    padding: 20px; 
+    margin: auto; 
+    width: 60%;  
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+.adjective-words, .noun-words, .verb-words, .miscellany-words {
+    line-height: 1.2;
+    font-size: 1.2rem;
+    padding: 0px 15px; 
+    margin-bottom: 50px;
+    cursor: pointer;
+    line-height: 3;
+}
+
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0} 
+    to {top:0; opacity:1}
+}
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+#header {
+    display: flex;
+    width: 100%;
+  }
+  
+  .left {
+    background-image: url("https://user-images.githubusercontent.com/5471571/209763084-57bea078-8c53-4e2e-8632-983e57526569.png");
+    background-size: cover;
+    width: 35%;
+  }
+  
+  .right {
+    display: flex;
+    padding: 5px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background-color: black;
+  }
+  
+  #title::first-letter {
+    color: #A52A2A;
+    float: left;
+    font-size: 6em;
+    margin: 0 .em 0 0;
+    padding: 15px;
+    line-height: 0.85;
+  }
+  
+  #footer {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    width: 75px;  
+    height: 75px;
+    margin: 6px;
+  }
+  
+  #home img {
+    width: 100%;
+    height: 100%;
+  }

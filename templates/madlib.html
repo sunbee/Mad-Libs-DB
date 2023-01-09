@@ -1,0 +1,51 @@
+{# templates/madlib.html #}
+
+{% extends "main.html" %}
+
+{% block page_madlib %}
+<body>
+    {{ super() }}
+    <div><div style="text-align: center;">
+        {% autoescape false %}
+        {{ my_mad_lib }}
+        {% endautoescape %}    
+    </div></div>
+    <div class="modal" style="display: none;">
+        <div class="modal-content">
+            <h5 id="adjectives" data-name="" style="display: none;">
+                {%- for adjective in adjectives -%}
+                    <span class="adjective-words">{{ adjective }}</span>
+                    {%- if loop.index % 3 == 0 -%}
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            </h5>
+            <h5 id="nouns" data-name="" style="display: none;">
+                {%- for noun in nouns -%}
+                    <span class="noun-words">{{ noun }}</span>
+                    {%- if loop.index % 3 == 0 -%}
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            </h5>
+            <h5 id="verbs" data-name="" style="display: none;">
+                {%- for verb in verbs -%}
+                    <span class="verb-words">{{ verb }}</span>
+                    {%- if loop.index % 3 == 0 -%}
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            </h5>
+            <h5 id="miscellanies" data-name="" style="display: none;">
+                {%- for miscellany in miscellanies -%}
+                    <span class="miscellany-words">{{ miscellany }}</span>
+                    {%- if loop.index % 3 == 0 -%}
+                        <br>
+                    {% endif %}
+                {% endfor %}
+            </h5>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/sunbee/Mad-Libs-Base/JS/script.js"></script>
+</body>
+{% endblock page_madlib %}

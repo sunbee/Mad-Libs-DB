@@ -1,0 +1,42 @@
+{# templates/CRUpdateD.html #}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Marvellous Mavericks Methodically Mad-Libs Make</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sunbee/Mad-Libs-Base/CSS/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Chelsea+Market&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    </head>
+    <body>
+      <form action="http://localhost:8000/madlibsdel/{{ title }}" method="POST">
+        <div><h3>Mad-Lib Information</h3></div>
+        <div>Time: <input type="time" id="timestamp" name="timestamp" /></div><br>
+        <div>Date: <input type="date" id="datestamp" name="datestamp" /></div><br>
+        <div>Title: <br><input type="text" id="title" name="title" value={{ title }} disabled="disabled"/></div><br>
+        <div>Mad-Lib: <br><textarea placeholder="Type HTML here." id="madlib" name="madlib" disabled="disabled">{{ HTML|safe }}</textarea></div><br>
+        <div>Adjective: 
+            {% for adjective in adjectives %}
+                <br><input type="text" id="adjective-{{ loop.index+1 }}" name="adjective-{{ loop.index+1 }}"" value="{{ adjective }}" disabled="disabled"/>
+            {% endfor %}
+            <br><br>
+        <div>Noun: 
+            {% for noun in nouns %}
+                <br><input type="text" id="noun-{{ loop.index+1 }}" name="noun-{{ loop.index+1 }}" value="{{ noun }}" disabled="disabled"/>
+            {% endfor %}
+            <br><br>
+        <div>Verb: 
+            {% for verb in verbs %}
+                <br><input type="text" id="verb-{{ loop.index+1 }}" name="verb-{{ loop.index+1 }}" value="{{ verb }}" disabled="disabled"/>
+            {% endfor %}
+            <br><br>
+        <div>Misc.: 
+            {% for miscellany in miscellanies %}
+                <br><input type="text" id="miscellany={{ loop.index }}" name="miscellany-{{ loop.index }}" value="{{ miscellany }}" disabled="disabled"/>
+            {% endfor %}
+            <br><br>
+        <div><input type="submit" value="D E L E T E"></div>
+      </form>      
+    </body>

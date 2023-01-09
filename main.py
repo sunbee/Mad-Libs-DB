@@ -1,7 +1,12 @@
-from fastapi import Depends, FastAPI, HTTPException, Form
+from fastapi import FastAPI, Path, Query, Form, Request, Depends, status, HTTPException
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
 from typing import List, Union, Optional
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+import copy
+import re
 
 from SQL.database import SessionLocal, engine
 
@@ -18,15 +23,20 @@ def get_DB():
     finally:
         db.close()
 
-
 @app.get('/')
-async def root(request: Request):
+async def root(request: Request, db: Session = Depends(get_DB)):
+    titles = crud.get_madlib_names(db)
+
+    return {'title': titles}
+
+    '''
     games = {k:v.get('title') for k, v in madlibsDB.items() if v.get('active', True)}
     print(games)
     return templates.TemplateResponse('landing.html', {
         "request": request,
         "games": games        
     })
+    '''
 
 @app.get('/madlibsgame/{name}')
 async def getMadLibGame(request: Request, name: str):

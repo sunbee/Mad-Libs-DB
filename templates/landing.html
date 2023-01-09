@@ -1,0 +1,12 @@
+{# templates/landing.html #}
+
+{% extends "main.html" %}
+
+{% block page_home %}
+    <h1>Contents</h1>
+    <ul>
+    {% for k, v in games.items() %}
+        <li><a href="/madlibsgame/{{ k }}"><h2>{{ v }}</h2></a></li>
+    {% endfor %}
+    </ul>
+{% endblock page_home %}

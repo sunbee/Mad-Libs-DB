@@ -13,7 +13,9 @@ def get_madlib_byName(db: Session, name: str):
     return Session.query(models.Madlib).filter(models.Madlib.title==name).one()
 
 def get_madlib_names(db: Session):
-    return Session.query(models.Madlib.title).all()
+    names = db.query(models.Madlib.title).all()
+    titles = [name[0] for name in names]
+    return titles
 
 '''
 CREATE

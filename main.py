@@ -18,6 +18,28 @@ def get_DB():
     finally:
         db.close()
 
+
+@app.get('/')
+async def root(request: Request):
+    games = {k:v.get('title') for k, v in madlibsDB.items() if v.get('active', True)}
+    print(games)
+    return templates.TemplateResponse('landing.html', {
+        "request": request,
+        "games": games        
+    })
+
+@app.get('/madlibsgame/{name}')
+async def getMadLibGame(request: Request, name: str):
+    my_mad_lib = madlibsDB.get(name, None)
+    if my_mad_lib and my_mad_lib.get('active', True):
+        return templates.TemplateResponse('madlib.html', {'request': request, 
+                                        'my_mad_lib': my_mad_lib.get('HTML'),
+                                        'adjectives': my_mad_lib.get('adjectives'),
+                                        'nouns': my_mad_lib.get('nouns'),
+                                        'verbs': my_mad_lib.get('verbs'),
+                                        'miscellanies': my_mad_lib.get('miscellanies')})
+    
+'''
 async def get_madlib_body_fromForm(title: str = Form(...), content: str = Form(...)):
     madlib_body = schemas.MadlibBase(title=title, content=content)
     return madlib_body
@@ -105,3 +127,4 @@ async def make_madlib_miscellanyList(miscellanies: List[schemas.MiscellanyCreate
             raise HTTPException(status_code=400, detail="Added no words. Found miscellanies in DB for madlib with id.")
 
     return crud.post_madlib_miscellanies(db, miscellanies)
+'''

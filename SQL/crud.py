@@ -3,6 +3,35 @@ from typing import List, Union
 
 from SQL import models, schemas
 
+'''
+RETRIEVE
+Get a madlib by title
+
+
+'''
+def get_madlib_byName(db: Session, name: str):
+    return Session.query(models.Madlib).filter(models.Madlib.title==name).one()
+
+def get_madlib_names(db: Session):
+    return Session.query(models.Madlib.title).all()
+
+'''
+CREATE
+
+'''
+
+'''
+UPDATE
+
+'''
+
+'''
+DELETE
+
+'''
+
+'''
+
 def get_madlib(db: Session, madlib_id: int):
     return db.query(models.Madlib).filter(models.Madlib.madlib_id == madlib_id).first()
 
@@ -47,3 +76,4 @@ def post_madlib_miscellanies(db: Session, miscellanies: List[schemas.MiscellanyC
     db.commit()
     db_madlib = get_madlib(db, miscellanies[0].madlib_id)
     return db_madlib
+'''

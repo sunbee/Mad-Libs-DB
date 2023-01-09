@@ -1,6 +1,59 @@
 from pydantic import BaseModel
 from typing import List, Union, Optional
 
+class PyWordTypeBase(BaseModel):
+    word_type: str
+
+    class Config:
+        orm_mode = True
+
+class PyWordTypeCreate(PyWordTypeBase):
+    pass
+
+class PyWordType(PyWordTypeBase):
+    word_type_id: int
+
+    class Config:
+        orm_mode = True
+
+class PyWordBase(BaseModel):
+    word: str
+    word_type_id: str
+    word_type: PyWordType
+    madlib_id: int
+
+    class Config:
+        orm_mode = True
+
+class PyWordCreate(PyWordBase):
+    pass
+
+class PyWord(PyWordBase):
+    word_id: int
+
+    class Config:
+        orm_mode = True
+
+class PyMadlibBase(BaseModel):
+    title: str
+    content: str
+    words: List[PyWord]
+
+    class Config:
+        orm_mode = True
+
+class PyMadlibCreate(PyMadlibBase):
+    pass
+
+class PyMadlib(PyMadlibBase):
+    madlib_id: int
+
+    class Config:
+        orm_mode = True
+
+
+'''
+
 class AdjectiveBase(BaseModel):
     adjective_word: str
     madlib_id: int 
@@ -70,3 +123,4 @@ class Madlib(MadlibBase):
 
     class Config:
         orm_mode = True
+'''

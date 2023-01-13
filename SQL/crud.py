@@ -10,12 +10,13 @@ Get a madlib by title
 
 '''
 def get_madlib_byName(db: Session, name: str):
-    return Session.query(models.Madlib).filter(models.Madlib.title==name).one()
+    return db.query(models.Madlib).filter(models.Madlib.title==name).one()
 
 def get_madlib_names(db: Session):
-    names = db.query(models.Madlib.title).all()
-    titles = [name[0] for name in names]
-    return titles
+    titles = [title[0] for title in db.query(models.Madlib.title).all()]
+    names = [name[0] for name in db.query(models.Madlib.display_name).all()]
+      
+    return list(zip(titles, names))
 
 '''
 CREATE

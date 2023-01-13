@@ -37,6 +37,7 @@ class PyWord(PyWordBase):
 class PyMadlibBase(BaseModel):
     title: str
     content: str
+    display_name: str
     words: List[PyWord]
 
     class Config:

@@ -16,6 +16,8 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+templates = Jinja2Templates(directory='templates')
+
 def get_DB():
     db = SessionLocal()
     try:
@@ -25,22 +27,37 @@ def get_DB():
 
 @app.get('/')
 async def root(request: Request, db: Session = Depends(get_DB)):
-    titles = crud.get_madlib_names(db)
-
-    return {'title': titles}
-
-    '''
-    games = {k:v.get('title') for k, v in madlibsDB.items() if v.get('active', True)}
-    print(games)
+    titles_n_names = crud.get_madlib_names(db)
+    
     return templates.TemplateResponse('landing.html', {
-        "request": request,
-        "games": games        
+        'request': request,
+        'games': dict(titles_n_names)
     })
-    '''
 
 @app.get('/madlibsgame/{name}')
-async def getMadLibGame(request: Request, name: str):
-    my_mad_lib = madlibsDB.get(name, None)
+async def getMadLibGame(request: Request, name: str, 
+    db: Session = Depends(get_DB)):
+    my_mad_lib = crud.get_madlib_byName(db, name)
+
+    title = my_mad_lib.title
+    content = my_mad_lib.content
+    display_name = my_mad_lib.display_name
+
+    adjective, noun, verb, miscellany = db.query(models.WordType).filter(models.WordType.word_type_id < 5).all()
+
+    adjectives = [word.word for word in my_mad_lib.words if word.word_type == adjective]
+    nouns = [word.word for word in my_mad_lib.words if word.word_type == noun]
+    verbs = [word.word for word in my_mad_lib.words if word.word_type == verb]
+    miscellanies = [word.word for word in my_mad_lib.words if word.word_type == miscellany]
+
+    return templates.TemplateResponse('madlib.html', {'request': request, 
+                                    'my_mad_lib': content, 
+                                    'adjectives': adjectives, 
+                                    'nouns': nouns, 
+                                    'verbs': verbs, 
+                                    'miscellanies': miscellanies})
+
+'''
     if my_mad_lib and my_mad_lib.get('active', True):
         return templates.TemplateResponse('madlib.html', {'request': request, 
                                         'my_mad_lib': my_mad_lib.get('HTML'),
@@ -48,7 +65,7 @@ async def getMadLibGame(request: Request, name: str):
                                         'nouns': my_mad_lib.get('nouns'),
                                         'verbs': my_mad_lib.get('verbs'),
                                         'miscellanies': my_mad_lib.get('miscellanies')})
-    
+'''   
 '''
 async def get_madlib_body_fromForm(title: str = Form(...), content: str = Form(...)):
     madlib_body = schemas.MadlibBase(title=title, content=content)

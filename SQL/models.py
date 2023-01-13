@@ -9,6 +9,7 @@ class Madlib(Base):
     madlib_id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     content = Column(String)
+    display_name = Column(String)
 
     words = relationship("Word", backref="madlib")
 

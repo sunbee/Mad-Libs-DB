@@ -51,6 +51,7 @@ async def getMadLibGame(request: Request, name: str,
     miscellanies = [word.word for word in my_mad_lib.words if word.word_type == miscellany]
 
     return templates.TemplateResponse('madlib.html', {'request': request, 
+                                    'display_name': display_name,
                                     'my_mad_lib': content, 
                                     'adjectives': adjectives, 
                                     'nouns': nouns, 

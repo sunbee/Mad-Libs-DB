@@ -6,6 +6,7 @@
 <body>
     {{ super() }}
     <div><div style="text-align: center;">
+        <h2>{{ display_name }}</h2>
         {% autoescape false %}
         {{ my_mad_lib }}
         {% endautoescape %}    

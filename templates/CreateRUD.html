@@ -9,11 +9,12 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     </head>
     <body>
-      <form action="http://localhost:8000/madlibsadd/" method="POST">
+      <form action="/madlibscreate/" method="POST">
         <div><h3>Mad-Lib Information</h3></div>
         <div>Time: <input type="time" id="timestamp" name="timestamp" /></div><br>
         <div>Date: <input type="date" id="datestamp" name="datestamp" /></div><br>
         <div>Title: <br><input type="text" id="title" name="title" required/></div><br>
+        <div>Display Name: <br><input type="text" id="display_name" name="display_name" required/></div><br>
         <div>Mad-Lib: <br><textarea placeholder="Type HTML here." id="madlib" name="madlib" required></textarea></div><br>
         <div>Adjective: <br><input type="text" id="adjective-1" name="adjective-1" required/><span class="fa fa-plus add" name="add-adjective"></span></div><br>
         <div>Noun: <br><input type="text" id="noun-1" name="noun-1" required/><span class="fa fa-plus add" name="add-noun"></span></div><br>

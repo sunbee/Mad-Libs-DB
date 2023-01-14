@@ -38,7 +38,7 @@ class PyMadlibBase(BaseModel):
     title: str
     content: str
     display_name: str
-    words: List[PyWord]
+    words: List[PyWordBase]
 
     class Config:
         orm_mode = True
@@ -48,6 +48,7 @@ class PyMadlibCreate(PyMadlibBase):
 
 class PyMadlib(PyMadlibBase):
     madlib_id: int
+    words: List[PyWord]
   
 
     class Config:

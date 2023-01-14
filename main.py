@@ -25,6 +25,32 @@ def get_DB():
     finally:
         db.close()
 
+
+async def CRUDform(request: Request, name: Union[str, None] = None):
+    form_data = await request.form()
+    form_json = jsonable_encoder(form_data)
+
+    title = form_json["title"] if not name else name
+    content = form_json["madlib"]
+    display_name = form_json["display_name"] # TODO - Add to CreateRUD.html
+
+    all_words = list()
+    for a_key, a_val in form_json.items():
+        match = re.search('^(adjective|noun|verb|miscellany)', a_key)
+        if match:
+            print("Got match: {}".format(match.group()))
+            w_type = schemas.PyWordTypeBase(word_type=match.group())
+            a_word = schemas.PyWordBase(word=a_val, word_type=w_type)
+            all_words.append(a_word)
+
+    madlib = schemas.PyMadlibBase(
+        title = title,
+        content = content,
+        display_name = display_name,
+        words = all_words
+    )
+    return madlib
+
 ''' 
 *CRUD*: RETRIEVE
 
@@ -62,31 +88,6 @@ async def getMadLibGame(request: Request, name: str,
                                     'verbs': verbs, 
                                     'miscellanies': miscellanies})
 
-
-async def CRUDform(request: Request, name: Union[str, None] = None):
-    form_data = request.form()
-    form_json = jsonable_encoder(form_data)
-
-    title = form_json["title"] if not name else name
-    content = form_json["madlib"]
-    display_name = form_json["display_name"] # TODO - Add to CreateRUD.html
-
-    all_words = list()
-    for a_key, a_val in form_json.items():
-        match = re.search('^(adjective|noun|verb|miscellany)', a_key)
-        if match:
-            w_type = schemas.PyWordTypeBase(match.group())
-            a_word = schemas.PyWordBase(word=a_val, word_type=w_type)
-            all_words.append(a_word)
-
-    madlib = schemas.PyMadlibBase(
-        title = title,
-        content = content,
-        display_name = display_name,
-        words = all_words
-    )
-    return madlib
-
 ''' 
 *CRUD*: CREATE
 '''
@@ -96,7 +97,7 @@ async def form4_C_RUD():
         CreateRUD_HTML = fd.read()
     return HTMLResponse(CreateRUD_HTML);
 
-@app.post('madlibscreate/{name}')
+@app.post('/madlibscreate/')
 async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCreate = Depends(CRUDform)):
     crud.add_madlib(db, madlib)
     return RedirectResponse('/madlibsgame/' + madlib.title, status_code=status.HTTP_302_FOUND)

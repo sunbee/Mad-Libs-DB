@@ -18,6 +18,61 @@ def get_madlib_names(db: Session):
       
     return list(zip(titles, names))
 
+def add_madlib(db: Session, madlib: schemas.PyMadlibCreate):
+    db_madlib = models.Madlib(
+        title = madlib.title,
+        content = madlib.content,
+        display_name = madlib.display_name
+    )
+
+    types_list = db.query(models.WordType.word_type, models.WordType.word_type_id).filter(models.WordType.word_type_id < 5).all()
+    types_dict = dict(types_list)
+
+    db_words = list()
+    for mad_word in madlib.words:
+        db_word = models.Word(
+                        word=mad_word.word, 
+                        word_type_id=types_dict.get(mad_word.word_type.word_type), 
+                        madlib = db_madlib)
+        db_words.append(db_word)
+    
+    try:
+        db.add(db_madlib)
+        db.commit()
+    except:
+        db.rollback()
+        raise
+    else:
+        db.refresh(db_madlib)
+        return db_madlib
+
+
+'''
+def add_madlib_content(db: Session, madlib: schemas.PyMadlibCreate):
+    db_madlib = models.Madlib(**madlib.dict())
+    db.add(db_madlib)
+    db.commit()
+    db.refresh(db_madlib)
+    return db_madlib
+
+def add_madlib_words(db: Session, words: List[schemas.PyWordCreate], madlib_id: int):
+    types_list = db.query(models.WordType.word_type, models.WordType.word_type_id).filter(models.WordType.word_type_id < 5).all()
+    types_dict = dict(types_list)
+
+    db_words = list()
+    for appword in words:
+        db_word = models.Word(
+                        word=appword.word, 
+                        word_type_id=types_dict.get(appword.word_type.word_type), 
+                        madlib_id=madlib_id)
+        db_words.append(db_word)
+    db.add_all(db_words)
+    db.commit()
+
+    _ = [Session.refresh(db_word) for db_word in db_words]
+    return db_words
+'''
+
 '''
 CREATE
 

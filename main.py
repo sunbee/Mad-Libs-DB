@@ -25,6 +25,10 @@ def get_DB():
     finally:
         db.close()
 
+''' 
+*CRUD*: RETRIEVE
+
+'''
 @app.get('/')
 async def root(request: Request, db: Session = Depends(get_DB)):
     titles_n_names = crud.get_madlib_names(db)
@@ -58,15 +62,66 @@ async def getMadLibGame(request: Request, name: str,
                                     'verbs': verbs, 
                                     'miscellanies': miscellanies})
 
+
+async def CRUDform(request: Request, name: Union[str, None] = None):
+    form_data = request.form()
+    form_json = jsonable_encoder(form_data)
+
+    title = form_json["title"] if not name else name
+    content = form_json["madlib"]
+    display_name = form_json["display_name"] # TODO - Add to CreateRUD.html
+
+    all_words = list()
+    for a_key, a_val in form_json.items():
+        match = re.search('^(adjective|noun|verb|miscellany)', a_key)
+        if match:
+            w_type = schemas.PyWordTypeBase(match.group())
+            a_word = schemas.PyWordBase(word=a_val, word_type=w_type)
+            all_words.append(a_word)
+
+    madlib = schemas.PyMadlibBase(
+        title = title,
+        content = content,
+        display_name = display_name,
+        words = all_words
+    )
+    return madlib
+
+''' 
+*CRUD*: CREATE
 '''
-    if my_mad_lib and my_mad_lib.get('active', True):
-        return templates.TemplateResponse('madlib.html', {'request': request, 
-                                        'my_mad_lib': my_mad_lib.get('HTML'),
-                                        'adjectives': my_mad_lib.get('adjectives'),
-                                        'nouns': my_mad_lib.get('nouns'),
-                                        'verbs': my_mad_lib.get('verbs'),
-                                        'miscellanies': my_mad_lib.get('miscellanies')})
-'''   
+@app.get('/madlibsform/')
+async def form4_C_RUD():
+    with open('templates/CreateRUD.html', 'r') as fd:
+        CreateRUD_HTML = fd.read()
+    return HTMLResponse(CreateRUD_HTML);
+
+@app.post('madlibscreate/{name}')
+async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCreate = Depends(CRUDform)):
+    pass
+
+''' 
+*CRUD*: UPDATE
+'''
+@app.get('/madlibschange/{madlib_id}')
+async def form4CR_U_D(request: Request, name: str):
+    pass
+
+@app.post('/madlibsupdate/{madlib_id}')
+async def putFormData(db: Session = Depends(get_DB), madlib: models.Madlib = Depends(CRUDform)):
+    pass
+
+''' 
+*CRUD*: DELETE
+'''
+@app.get('/madlibsremove/{madlib_id}')
+async def form4CRU_D_(request: Request, name: str):
+    pass
+
+@app.delete('/madlibsdelete/{madlib_id}')
+async def deleteRecord(name: str, db: Session = Depends(get_DB)):
+    pass
+
 '''
 async def get_madlib_body_fromForm(title: str = Form(...), content: str = Form(...)):
     madlib_body = schemas.MadlibBase(title=title, content=content)

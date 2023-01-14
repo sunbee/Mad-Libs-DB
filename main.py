@@ -98,7 +98,8 @@ async def form4_C_RUD():
 
 @app.post('madlibscreate/{name}')
 async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCreate = Depends(CRUDform)):
-    pass
+    crud.add_madlib(db, madlib)
+    return RedirectResponse('/madlibsgame/' + madlib.title, status_code=status.HTTP_302_FOUND)
 
 ''' 
 *CRUD*: UPDATE

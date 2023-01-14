@@ -4,8 +4,7 @@ from typing import List, Union
 from SQL import models, schemas
 
 '''
-RETRIEVE
-Get a madlib by title
+RETRIEVE: Get a madlib by title
 
 
 '''
@@ -18,6 +17,10 @@ def get_madlib_names(db: Session):
       
     return list(zip(titles, names))
 
+'''
+CREATE: Add a new madlib
+
+'''
 def add_madlib(db: Session, madlib: schemas.PyMadlibCreate):
     db_madlib = models.Madlib(
         title = madlib.title,
@@ -71,11 +74,6 @@ def add_madlib_words(db: Session, words: List[schemas.PyWordCreate], madlib_id: 
 
     _ = [Session.refresh(db_word) for db_word in db_words]
     return db_words
-'''
-
-'''
-CREATE
-
 '''
 
 '''

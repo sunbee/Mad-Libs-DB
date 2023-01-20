@@ -31,13 +31,11 @@ def add_madlib(db: Session, madlib: schemas.PyMadlibCreate):
     types_list = db.query(models.WordType.word_type, models.WordType.word_type_id).filter(models.WordType.word_type_id < 5).all()
     types_dict = dict(types_list)
 
-    db_words = list()
     for mad_word in madlib.words:
         db_word = models.Word(
                         word=mad_word.word, 
                         word_type_id=types_dict.get(mad_word.word_type.word_type), 
                         madlib = db_madlib)
-        db_words.append(db_word)
     
     try:
         db.add(db_madlib)

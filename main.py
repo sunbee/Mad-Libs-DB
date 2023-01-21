@@ -105,22 +105,22 @@ async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCr
 ''' 
 *CRUD*: UPDATE
 '''
-@app.get('/madlibschange/{madlib_id}')
+@app.get('/madlibschange/{name}')
 async def form4CR_U_D(request: Request, name: str):
     pass
 
-@app.post('/madlibsupdate/{madlib_id}')
+@app.post('/madlibsupdate/{name}')
 async def putFormData(db: Session = Depends(get_DB), madlib: models.Madlib = Depends(CRUDform)):
     pass
 
 ''' 
 *CRUD*: DELETE
 '''
-@app.get('/madlibsremove/{madlib_id}')
+@app.get('/madlibsremove/{name}')
 async def form4CRU_D_(request: Request, name: str):
     pass
 
-@app.delete('/madlibsdelete/{madlib_id}')
+@app.delete('/madlibsdelete/{name}')
 async def deleteRecord(name: str, db: Session = Depends(get_DB)):
     pass
 

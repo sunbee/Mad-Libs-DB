@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import List, Union, Optional
+import re
 
 class PyWordTypeBase(BaseModel):
     word_type: str
@@ -39,6 +40,13 @@ class PyMadlibBase(BaseModel):
     content: str
     display_name: str
     words: List[PyWordBase]
+
+    @validator("title", pre=True)
+    def title_must_be_alphanumeric(cls, value):
+        if re.findall(r'[^a-zA-Z0-0_]', value):
+            raise ValueError("Title has inadmissible characters.")
+        else:
+            return value
 
     class Config:
         orm_mode = True

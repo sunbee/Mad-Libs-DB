@@ -1,5 +1,5 @@
 from sqlalchemy import Boolean, Integer, String, Column, ForeignKey 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, reconstructor
 
 from SQL.database import Base
 
@@ -12,6 +12,10 @@ class Madlib(Base):
     display_name = Column(String)
 
     words = relationship("Word", backref="madlib")
+
+    @reconstructor
+    def getWordList_byType(self, type: str):
+        return [word.word for word in self.words if word.word_type.word_type == type]
 
 class Word(Base):
     __tablename__ = 'word_list'

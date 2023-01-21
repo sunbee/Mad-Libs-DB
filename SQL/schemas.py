@@ -48,6 +48,9 @@ class PyMadlibBase(BaseModel):
         else:
             return value
 
+    def getWords_byType(self, type: str):
+        return [word.word for word in self.words if word.word_type.word_type == type]
+
     class Config:
         orm_mode = True
 

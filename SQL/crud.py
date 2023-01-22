@@ -40,9 +40,9 @@ def add_madlib(db: Session, madlib: schemas.PyMadlibCreate):
     try:
         db.add(db_madlib)
         db.commit()
-    except:
+    except Exception as e:
         db.rollback()
-        raise
+        raise e
     else:
         db.refresh(db_madlib)
         return db_madlib

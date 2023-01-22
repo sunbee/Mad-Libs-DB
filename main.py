@@ -131,7 +131,7 @@ async def form4CRU_D_(request: Request, name: str,
     db: Session = Depends(get_DB)):
     try:
         my_mad_lib = crud.get_madlib_byName(db, name)
-    except:
+    except Exception as e:
         if isinstance(e, exc.NoResultFound):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Found no madblib by name of {name}!')
         elif isinstance(e, exc.SQLAlchemyError):
@@ -150,16 +150,14 @@ async def form4CRU_D_(request: Request, name: str,
 
 @app.post('/madlibsdelete/{name}')
 async def deleteRecord(name: str, db: Session = Depends(get_DB)):
-    mid = db.query(models.Madlib.madlib_id).filter(models.Madlib.title==name).one()
     try:
-        db.query(models.Word).filter(models.Word.madlib_id==mid).delete(synchronize_session='fetch')
-        db.query(models.Madlib).filter(models.Madlib.madlib_id==mid).delete(synchronize_session='fetch')
-        db.commit()
-    except:
-        Session.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+        mid = crud.del_madlib_byName(db, name)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error! Deleted no madlib!')
     else:
-        return mid;
+        return mid
+
+
 
 '''
 async def get_madlib_body_fromForm(title: str = Form(...), content: str = Form(...)):

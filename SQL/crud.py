@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, exc
 from typing import List, Union
 
 from SQL import models, schemas
@@ -56,6 +56,17 @@ UPDATE: Modify an existing madlib
 DELETE
 
 '''
+def del_madlib_byName(db: Session, name: str):
+    mid = db.query(models.Madlib.madlib_id).filter(models.Madlib.title==name).one()
+    try:
+        db.query(models.Word).filter(models.Word.madlib_id==mid).delete(synchronize_session='fetch')
+        db.query(models.Madlib).filter(models.Madlib.madlib_id==mid).delete(synchronize_session='fetch')
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise e
+    else:
+        return mid;
 
 '''
 

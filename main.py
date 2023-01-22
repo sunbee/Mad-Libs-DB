@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from typing import List, Union, Optional
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, exc
 import copy
 import re
 
@@ -25,7 +25,6 @@ def get_DB():
     finally:
         db.close()
 
-
 async def CRUDform(request: Request, name: Union[str, None] = None):
     form_data = await request.form()
     form_json = jsonable_encoder(form_data)
@@ -43,13 +42,20 @@ async def CRUDform(request: Request, name: Union[str, None] = None):
             a_word = schemas.PyWordBase(word=a_val, word_type=w_type)
             all_words.append(a_word)
 
-    madlib = schemas.PyMadlibBase(
-        title = title,
-        content = content,
-        display_name = display_name,
-        words = all_words
-    )
-    return madlib
+    try:
+        madlib = schemas.PyMadlibBase(
+            title = title,
+            content = content,
+            display_name = display_name,
+            words = all_words
+        )
+        yield madlib
+    except Exception as e:
+        if isinstance(e, ValueError):
+            print(e.args[0])
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unprocessabile entity in form! Gory detail: {}".format(str(e)))
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Processed no input!")
 
 ''' 
 *CRUD*: RETRIEVE
@@ -67,26 +73,23 @@ async def root(request: Request, db: Session = Depends(get_DB)):
 @app.get('/madlibsgame/{name}')
 async def getMadLibGame(request: Request, name: str, 
     db: Session = Depends(get_DB)):
-    my_mad_lib = crud.get_madlib_byName(db, name)
-
-    title = my_mad_lib.title
-    content = my_mad_lib.content
-    display_name = my_mad_lib.display_name
-
-    adjective, noun, verb, miscellany = db.query(models.WordType).filter(models.WordType.word_type_id < 5).all()
-
-    adjectives = [word.word for word in my_mad_lib.words if word.word_type == adjective]
-    nouns = [word.word for word in my_mad_lib.words if word.word_type == noun]
-    verbs = [word.word for word in my_mad_lib.words if word.word_type == verb]
-    miscellanies = [word.word for word in my_mad_lib.words if word.word_type == miscellany]
+    try:
+        my_mad_lib = crud.get_madlib_byName(db, name)
+    except Exception as e:
+        if isinstance(e, exc.NoResultFound):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Found no madblib by name of {name}!')
+        elif isinstance(e, exc.SQLAlchemyError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+        else: 
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
     return templates.TemplateResponse('madlib.html', {'request': request, 
-                                    'display_name': display_name,
-                                    'my_mad_lib': content, 
-                                    'adjectives': adjectives, 
-                                    'nouns': nouns, 
-                                    'verbs': verbs, 
-                                    'miscellanies': miscellanies})
+                                    'display_name': my_mad_lib.display_name,
+                                    'my_mad_lib': my_mad_lib.content, 
+                                    'adjectives': my_mad_lib.getWordList_byType('adjective'), 
+                                    'nouns': my_mad_lib.getWordList_byType('noun'), 
+                                    'verbs': my_mad_lib.getWordList_byType('verb'), 
+                                    'miscellanies': my_mad_lib.getWordList_byType('miscellany')})
 
 ''' 
 *CRUD*: CREATE
@@ -99,8 +102,15 @@ async def form4_C_RUD():
 
 @app.post('/madlibscreate/')
 async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCreate = Depends(CRUDform)):
-    crud.add_madlib(db, madlib)
-    return RedirectResponse('/madlibsgame/' + madlib.title, status_code=status.HTTP_302_FOUND)
+    try:
+        crud.add_madlib(db, madlib)
+    except Exception as e:
+        if isinstance(e, exc.SQLAlchemyError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+        else: 
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    else:
+        return RedirectResponse('/madlibsgame/' + madlib.title, status_code=status.HTTP_302_FOUND)
 
 ''' 
 *CRUD*: UPDATE
@@ -117,12 +127,39 @@ async def putFormData(db: Session = Depends(get_DB), madlib: models.Madlib = Dep
 *CRUD*: DELETE
 '''
 @app.get('/madlibsremove/{name}')
-async def form4CRU_D_(request: Request, name: str):
-    pass
+async def form4CRU_D_(request: Request, name: str,
+    db: Session = Depends(get_DB)):
+    try:
+        my_mad_lib = crud.get_madlib_byName(db, name)
+    except:
+        if isinstance(e, exc.NoResultFound):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Found no madblib by name of {name}!')
+        elif isinstance(e, exc.SQLAlchemyError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+        else: 
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-@app.delete('/madlibsdelete/{name}')
+    return templates.TemplateResponse('CRUDelete.html', {'request': request, 
+                                    'title': my_mad_lib.title,
+                                    'display_name': my_mad_lib.display_name,
+                                    'my_mad_lib': my_mad_lib.content, 
+                                    'adjectives': my_mad_lib.getWordList_byType('adjective'), 
+                                    'nouns': my_mad_lib.getWordList_byType('noun'), 
+                                    'verbs': my_mad_lib.getWordList_byType('verb'), 
+                                    'miscellanies': my_mad_lib.getWordList_byType('miscellany')})
+
+@app.post('/madlibsdelete/{name}')
 async def deleteRecord(name: str, db: Session = Depends(get_DB)):
-    pass
+    mid = db.query(models.Madlib.madlib_id).filter(models.Madlib.title==name).one()
+    try:
+        db.query(models.Word).filter(models.Word.madlib_id==mid).delete(synchronize_session='fetch')
+        db.query(models.Madlib).filter(models.Madlib.madlib_id==mid).delete(synchronize_session='fetch')
+        db.commit()
+    except:
+        Session.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+    else:
+        return mid;
 
 '''
 async def get_madlib_body_fromForm(title: str = Form(...), content: str = Form(...)):

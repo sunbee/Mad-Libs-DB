@@ -13,7 +13,6 @@ class Madlib(Base):
 
     words = relationship("Word", backref="madlib")
 
-    @reconstructor
     def getWordList_byType(self, type: str):
         return [word.word for word in self.words if word.word_type.word_type == type]
 

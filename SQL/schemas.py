@@ -41,15 +41,15 @@ class PyMadlibBase(BaseModel):
     display_name: str
     words: List[PyWordBase]
 
+    def getWords_byType(self, type: str):
+        return [word.word for word in self.words if word.word_type.word_type == type]
+        
     @validator("title", pre=True)
     def title_must_be_alphanumeric(cls, value):
         if re.findall(r'[^a-zA-Z0-0_]', value):
             raise ValueError("Title has inadmissible characters.")
         else:
             return value
-
-    def getWords_byType(self, type: str):
-        return [word.word for word in self.words if word.word_type.word_type == type]
 
     class Config:
         orm_mode = True

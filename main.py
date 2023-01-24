@@ -53,7 +53,7 @@ async def CRUDform(request: Request, name: Union[str, None] = None):
     except Exception as e:
         if isinstance(e, ValueError):
             print(e.args[0])
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unprocessabile entity in form! Gory detail: {}".format(str(e)))
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unprocessabile entity in form for {}! Gory detail: {}".format(title, str(e)))
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Processed no input!")
 
@@ -77,11 +77,11 @@ async def getMadLibGame(request: Request, name: str,
         my_mad_lib = crud.get_madlib_byName(db, name)
     except Exception as e:
         if isinstance(e, exc.NoResultFound):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Found no madblib by name of {name}!')
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Found no madblib by name of {}! Gory detail: {}'.format(name, str(e)))
         elif isinstance(e, exc.SQLAlchemyError):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='DB error retrieving {}! Gory detail: {}'.format(name, str(e)))
         else: 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Retrieved no madlib!")
 
     return templates.TemplateResponse('madlib.html', {'request': request, 
                                     'display_name': my_mad_lib.display_name,
@@ -106,9 +106,9 @@ async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCr
         crud.add_madlib(db, madlib)
     except Exception as e:
         if isinstance(e, exc.SQLAlchemyError):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='DB error creating {}! Gory detail: {}'.format(madlib.title, str(e)))
         else: 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Created no madlib!")
     else:
         return RedirectResponse('/madlibsgame/' + madlib.title, status_code=status.HTTP_302_FOUND)
 
@@ -116,12 +116,38 @@ async def postFormData(db: Session = Depends(get_DB), madlib: schemas.PyMadlibCr
 *CRUD*: UPDATE
 '''
 @app.get('/madlibschange/{name}')
-async def form4CR_U_D(request: Request, name: str):
-    pass
+async def form4CR_U_D(request: Request, name: str, db: Session = Depends(get_DB)):
+    try:
+        my_mad_lib = crud.get_madlib_byName(db, name)
+    except Exception as e:
+        if isinstance(e, exc.NoResultFound):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Found no madblib by name of {}! Gory detail: {}'.format(name, str(e)))
+        elif isinstance(e, exc.SQLAlchemyError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='DB error retrieving {} to update! Gory detail: {}'.format(name, str(e)))
+        else: 
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Retrieved no madlib for update!")
+
+    return templates.TemplateResponse('CRUpdateD.html', {'request': request, 
+                                    'title': my_mad_lib.title,
+                                    'display_name': my_mad_lib.display_name,
+                                    'HTML': my_mad_lib.content, 
+                                    'adjectives': my_mad_lib.getWordList_byType('adjective'), 
+                                    'nouns': my_mad_lib.getWordList_byType('noun'), 
+                                    'verbs': my_mad_lib.getWordList_byType('verb'), 
+                                    'miscellanies': my_mad_lib.getWordList_byType('miscellany')})
+
 
 @app.post('/madlibsupdate/{name}')
 async def putFormData(db: Session = Depends(get_DB), madlib: models.Madlib = Depends(CRUDform)):
-    pass
+    try:
+        my_mad_lib = crud.update_mad(db, madlib)
+    except Exception as e:
+        if isinstance(e, exc.SQLAlchemyError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='DB error updating {}! Gory detail: {}'.format(madlib.title, str(e)))
+        else: 
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Updated no madlib!")
+    else:
+        return RedirectResponse('/madlibsgame/' + madlib.title, status_code=status.HTTP_302_FOUND)
 
 ''' 
 *CRUD*: DELETE
@@ -133,16 +159,16 @@ async def form4CRU_D_(request: Request, name: str,
         my_mad_lib = crud.get_madlib_byName(db, name)
     except Exception as e:
         if isinstance(e, exc.NoResultFound):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Found no madblib by name of {name}!')
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Found no madblib by name of {}! Gory detail: {}'.format(name, str(e)))
         elif isinstance(e, exc.SQLAlchemyError):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error!')
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='DB error retrieving {} to delete! Gory detail: {}'.format(name, str(e)))
         else: 
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Retrieved no madlib for deletion!")
 
     return templates.TemplateResponse('CRUDelete.html', {'request': request, 
                                     'title': my_mad_lib.title,
                                     'display_name': my_mad_lib.display_name,
-                                    'my_mad_lib': my_mad_lib.content, 
+                                    'HTML': my_mad_lib.content, 
                                     'adjectives': my_mad_lib.getWordList_byType('adjective'), 
                                     'nouns': my_mad_lib.getWordList_byType('noun'), 
                                     'verbs': my_mad_lib.getWordList_byType('verb'), 
@@ -153,6 +179,11 @@ async def deleteRecord(name: str, db: Session = Depends(get_DB)):
     try:
         mid = crud.del_madlib_byName(db, name)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown DB error! Deleted no madlib!')
+        if isinstance(e, exc.NoResultFound):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Found no madblib by name of {} - already deleted?! Gory detail: {}'.format(name, str(e)))
+        elif isinstance(e, exc.SQLAlchemyError):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='DB error deleting {}! Gory detail:{}'.format(name, str(e)))
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Deleted no madlib!')
     else:
         return mid

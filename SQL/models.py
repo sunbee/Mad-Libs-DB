@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Integer, String, Column, ForeignKey 
 from sqlalchemy.orm import relationship, reconstructor, exc
+from typing import Union
 
 from SQL.database import Base
 
@@ -13,7 +14,9 @@ class Madlib(Base):
 
     words = relationship("Word", backref="madlib")
 
-    def getWordList_byType(self, type: str):
+    def getWordList_byType(self, type: Union[str, None] = None):
+        if not type:
+            return [word.word for word in self.words]
         return [word.word for word in self.words if word.word_type.word_type == type]
 
 class Word(Base):

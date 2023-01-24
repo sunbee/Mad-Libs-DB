@@ -15,7 +15,8 @@
         <div><h3>Mad-Lib Information</h3></div>
         <div>Time: <input type="time" id="timestamp" name="timestamp" /></div><br>
         <div>Date: <input type="date" id="datestamp" name="datestamp" /></div><br>
-        <div>Title: <br><input type="text" id="title" name="title" value={{ title }} disabled="disabled"/></div><br>
+        <div>Title: <br><input type="text" id="title" name="title" value='{{ title|safe }}' disabled="disabled"/></div><br>
+        <div>Display Name: <br><input type="text" id="display_name" name="display_name" value='{{ display_name|safe }}' /></div><br>
         <div>Mad-Lib: <br><textarea placeholder="Type HTML here." id="madlib" name="madlib">{{ HTML|safe }}</textarea></div><br>
         <div>Adjective: 
             {% for adjective in adjectives %}

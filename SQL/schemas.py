@@ -41,7 +41,9 @@ class PyMadlibBase(BaseModel):
     display_name: str
     words: List[PyWordBase]
 
-    def getWords_byType(self, type: str):
+    def getWordList_byType(self, type: Union[str, None] = None):
+        if not type:
+            return [word.word for word in self.words]
         return [word.word for word in self.words if word.word_type.word_type == type]
         
     @validator("title", pre=True)
